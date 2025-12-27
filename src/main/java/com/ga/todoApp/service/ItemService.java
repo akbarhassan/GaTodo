@@ -28,13 +28,15 @@ public class ItemService {
                 () -> new InformationNotFoundException("Category Not Found")
         );
 
+        Item item = itemRepository.findByName(itemObject.getName());
+        if (item != null) throw new InformationExistException("Item Already Exists");
         itemObject.setCategory(category);
         return itemRepository.save(itemObject);
 
     }
 
 
-    public List<Item> getAllItem(Long categoryId) {
+    public List<Item> getAllItemsByCategory(Long categoryId) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(
                 () -> new InformationNotFoundException("Category Not Found")
         );
@@ -42,12 +44,11 @@ public class ItemService {
         return itemRepository.findByCategoryId(categoryId);
     }
 
-    public void deleteItem(Long id) {
-        if (itemRepository.existsById(id)) {
-            itemRepository.deleteById(id);
-        } else {
-            throw new InformationNotFoundException("item does not exist");
-        }
+    public void deleteItem(Long categoryID, Long id) {
+        Item item = itemRepository.findByIdAndCategoryId(id, categoryID).orElseThrow(
+                () -> new InformationNotFoundException("Item Not Found")
+        );
+        itemRepository.delete(item);
     }
 
 
@@ -64,8 +65,8 @@ public class ItemService {
     }
 
 
-    public Item updateItem(Long itemId, Item itemObject) {
-        Item existingItem = itemRepository.findById(itemId).orElseThrow(
+    public Item updateItem(Long categoryId, Long itemId, Item itemObject) {
+        Item existingItem = itemRepository.findByIdAndCategoryId(itemId, categoryId).orElseThrow(
                 () -> new InformationNotFoundException("item not found")
         );
 
@@ -74,10 +75,6 @@ public class ItemService {
         }
         if (itemObject.getDescription() != null) {
             existingItem.setDescription(itemObject.getDescription());
-        }
-
-        if (itemObject.getCategory() != null) {
-            existingItem.setCategory(itemObject.getCategory());
         }
 
         return itemRepository.save(existingItem);
