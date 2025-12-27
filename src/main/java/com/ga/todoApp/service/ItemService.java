@@ -3,7 +3,9 @@ package com.ga.todoApp.service;
 
 import com.ga.todoApp.exception.InformationExistException;
 import com.ga.todoApp.exception.InformationNotFoundException;
+import com.ga.todoApp.model.Category;
 import com.ga.todoApp.model.Item;
+import com.ga.todoApp.repository.CategoryRepository;
 import com.ga.todoApp.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,25 +15,31 @@ import java.util.List;
 @Service
 public class ItemService {
     private ItemRepository itemRepository;
+    private CategoryRepository categoryRepository;
 
     @Autowired
-    public void setItemRepository(ItemRepository itemRepository) {
+    public void setItemRepository(ItemRepository itemRepository, CategoryRepository categoryRepository) {
         this.itemRepository = itemRepository;
+        this.categoryRepository = categoryRepository;
     }
 
-    public Item createItem(Item itemObject) {
-        Item item = itemRepository.findByName(itemObject.getName());
+    public Item createItem(Long categoryId, Item itemObject) {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                () -> new InformationNotFoundException("Category Not Found")
+        );
 
-        if (item == null) {
-            return itemRepository.save(itemObject);
-        } else {
-            throw new InformationExistException("item already exists");
-        }
+        itemObject.setCategory(category);
+        return itemRepository.save(itemObject);
+
     }
 
 
-    public List<Item> getAllItem() {
-        return itemRepository.findAll();
+    public List<Item> getAllItem(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                () -> new InformationNotFoundException("Category Not Found")
+        );
+
+        return itemRepository.findByCategoryId(categoryId);
     }
 
     public void deleteItem(Long id) {
@@ -46,6 +54,12 @@ public class ItemService {
     public Item getItemById(Long id) {
         return itemRepository.findById(id).orElseThrow(
                 () -> new InformationNotFoundException("item not found")
+        );
+    }
+
+    public Item getItemByCategory(Long categoryId, Long itemId) {
+        return itemRepository.findByIdAndCategoryId(itemId, categoryId).orElseThrow(
+                () -> new InformationNotFoundException("item does not exist")
         );
     }
 
