@@ -1,5 +1,6 @@
 package com.ga.todoApp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -29,7 +30,6 @@ public class Category {
 
     @Column
     private String description;
-
 
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "category",orphanRemoval = true)
     private List<Item> itemList;
