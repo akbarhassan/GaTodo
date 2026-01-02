@@ -38,6 +38,12 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Item> itemList;
 
+    @OneToOne(
+            cascade = CascadeType.ALL, fetch = FetchType.LAZY
+    )
+    @JoinColumn(name = "profile_id", referencedColumnName = "id")
+    private UserProfile userProfile;
+
     @JsonIgnore
     public String getPassword() {
         return password;

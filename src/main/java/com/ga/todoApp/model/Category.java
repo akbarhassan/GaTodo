@@ -34,6 +34,10 @@ public class Category {
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "category",orphanRemoval = true)
     private List<Item> itemList;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 
     @Column
     @CreationTimestamp
